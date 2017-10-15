@@ -1,0 +1,3 @@
+[submodule "src/opensource"]
+	path = src/opensource
+	url = ssh://github.com/Elronnd/tenbots-opensource.git

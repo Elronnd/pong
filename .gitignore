@@ -1,0 +1,19 @@
+# dub turd
+.dub
+docs.json
+__dummy.html
+docs/
+pong
+pong-test-*
+*.exe
+*.o
+*.obj
+*.lst
+
+
+# vim turds
+.*.swp
+.*.swo
+.*.swn
+.*.swm
+.*.swl

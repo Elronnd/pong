@@ -1,0 +1,36 @@
+{
+	"name": "pong",
+	"authors": [
+		"Elronnd"
+	],
+
+	"dependencies": {
+		"derelict-sdl2": "~>3.0.0-beta.2"
+	},
+
+	"configurations": [
+		{
+			"name": "dynamicsdl",                                                                                          
+			"versions": ["dynamic_sdl2"]
+		},
+		{
+			"name": "staticsdl",
+			"subConfigurations": {
+				"derelict-sdl2": "derelict-sdl2-static"
+			},
+			"libs": [
+				"sdl2", "SDL2_image", "SDL2_ttf"
+			],
+			"versions": ["static_sdl2"]
+		}
+	],
+
+	"buildRequirements": ["allowWarnings"],                                                                                        
+
+	"description": "A minimal D application.",
+	"copyright": "Copyright © 2017, elronnd",
+	"license": "proprietary",
+
+	"targetType": "executable",
+	"mainSourceFile": "src/app.d"
+}
