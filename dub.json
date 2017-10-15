@@ -10,7 +10,7 @@
 
 	"configurations": [
 		{
-			"name": "dynamicsdl",                                                                                          
+			"name": "dynamicsdl",
 			"versions": ["dynamic_sdl2"]
 		},
 		{
@@ -25,11 +25,11 @@
 		}
 	],
 
-	"buildRequirements": ["allowWarnings"],                                                                                        
+	"buildRequirements": ["allowWarnings"],
 
-	"description": "A minimal D application.",
-	"copyright": "Copyright © 2017, elronnd",
-	"license": "proprietary",
+	"description": "Pong in D and SDL.",
+	"copyright": "Copyright © 2017, Elronnd",
+	"license": "BSD 3-clause",
 
 	"targetType": "executable",
 	"mainSourceFile": "src/app.d"
