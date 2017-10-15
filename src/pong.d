@@ -31,6 +31,7 @@ enum INIT_BALL_SPEED = 75;
 enum FPS = 1.0 / 60.0;
 
 enum PAD_DISTFROMEDGE = 15; // distance, in pixels, that the palletes have from the edge
+enum TEXT_OFFSET = 5;
 
 struct Direction {
 	float x, y;
@@ -40,6 +41,7 @@ struct Direction {
 class Pong {
 	uint ball_speed;
 	Sprite lpal, rpal, ball, center;
+	Sprite lscore, rscore;
 
        	Direction ball_dir; // direction can be -1 for left/up, +1 for down/right, 0 for nothing.  But it's a float so the multiplier can be changed
 
@@ -53,8 +55,22 @@ class Pong {
 		ball.load("assets/ball.png");
 		lpal.load("assets/pallette.png");
 		rpal.load("assets/pallette.png");
+		Graphics.loadfont("assets/DejaVuSans.ttf", 1, 24);
+
+		update_scores();
 
 		initshit();
+	}
+
+	void update_scores() {
+		import std.conv: to;
+
+		Graphics.rendertext(lscore, to!string(left_wins), 1);
+		lscore.x = lscore.y = TEXT_OFFSET;
+
+		Graphics.rendertext(rscore, to!string(right_wins), 1);
+		rscore.y = TEXT_OFFSET;
+		rscore.x = WIDTH - rscore.getrect().w - TEXT_OFFSET;
 	}
 
 	void initshit() {
@@ -103,9 +119,10 @@ class Pong {
 			} else if ((ball_potential.x < 0) || ((ball_potential.x + ball_potential.getrect().w) >= WIDTH)) {
 				if (ball_potential.x < 0) {
 					right_wins++;
-				} else if (ball_potential.x > WIDTH) {
+				} else if ((ball_potential.x + ball_potential.getrect.w) >= WIDTH) {
 					left_wins++;
 				}
+				update_scores();
 
 				initshit();
 				continue;
@@ -164,7 +181,7 @@ class Pong {
 	void draw() {
 		Graphics.clear();
 
-		mmap!(Graphics.placesprite)(lpal, rpal, ball, center);
+		mmap!(Graphics.placesprite)(lpal, rpal, ball, center, lscore, rscore);
 
 		Graphics.blit();
 	}
