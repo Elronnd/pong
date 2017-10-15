@@ -1,5 +1,7 @@
 import assetlib;
 import graphics;
+import graphics.scancode;
+import maybe;
 
 import std.random: uniform;
 import core.thread: Thread;
@@ -16,13 +18,17 @@ template mmap(alias fun) {
 }
 
 
+enum lup_key = Key.a, ldown_key = Key.z, rup_key = Key.up, rdown_key = Key.down;
+enum quit_key = Key.q;
+
+
 enum WIDTH = 640;
 enum HEIGHT = 480;
 
-enum PALLETTE_SPEED = 70; // px/s
-enum INIT_BALL_SPEED = 55;
+enum PALLETTE_SPEED = 100; // px/s
+enum INIT_BALL_SPEED = 75;
 
-enum FPS = 1.0 / 30.0;
+enum FPS = 1.0 / 60.0;
 
 enum PAD_DISTFROMEDGE = 15; // distance, in pixels, that the palletes have from the edge
 
@@ -74,7 +80,7 @@ class Pong {
 		auto sw = StopWatch();
 		sw.start();
 
-		while (true) {
+	mainloop: while (true) {
 			delta = sw.peek().msecs;
 			sw.reset();
 
@@ -107,6 +113,47 @@ class Pong {
 				ball = ball_potential;
 			}
 
+			Maybe!Event ev;
+
+			while ((ev = Graphics.pollevent()).isset) {
+				if (ev.key == lup_key) {
+					lpal_up = (ev.type == Evtype.Keydown) ? true :
+						(ev.type == Evtype.Keyup) ? false : lpal_up;
+				} else if (ev.key == ldown_key) {
+					lpal_down = (ev.type == Evtype.Keydown) ? true :
+						(ev.type == Evtype.Keyup) ? false : lpal_down;
+				} else if (ev.key == rup_key) {
+					rpal_up = (ev.type == Evtype.Keydown) ? true :
+						(ev.type == Evtype.Keyup) ? false : rpal_up;
+				} else if (ev.key == rdown_key) {
+					rpal_down = (ev.type == Evtype.Keydown) ? true :
+						(ev.type == Evtype.Keyup) ? false : rpal_down;
+				} else if (ev.key == quit_key) {
+					break mainloop;
+				}
+			}
+
+			if (lpal_up) {
+				if ((lpal.y - (PALLETTE_SPEED * FPS)) >= 0) {
+					lpal.y -= PALLETTE_SPEED * FPS;
+				}
+			} else if (lpal_down) {
+				if ((lpal.y + lpal.getrect().h + (PALLETTE_SPEED * FPS)) <= HEIGHT) {
+					lpal.y += PALLETTE_SPEED * FPS;
+				}
+			}
+
+			if (rpal_up) {
+				if ((rpal.y - (PALLETTE_SPEED * FPS)) >= 0) {
+					rpal.y -= PALLETTE_SPEED * FPS;
+				}
+			} else if (rpal_down) {
+				if ((rpal.y + rpal.getrect().h + (PALLETTE_SPEED * FPS)) <= HEIGHT) {
+					rpal.y += PALLETTE_SPEED * FPS;
+				}
+			}
+			
+
 			Thread.sleep(dur!"msecs"(cast(uint)((FPS * 1000) - delta)));
 
 			draw();
@@ -116,7 +163,9 @@ class Pong {
 
 	void draw() {
 		Graphics.clear();
+
 		mmap!(Graphics.placesprite)(lpal, rpal, ball, center);
+
 		Graphics.blit();
 	}
 }
