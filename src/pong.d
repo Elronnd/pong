@@ -19,11 +19,12 @@ template mmap(alias fun) {
 enum WIDTH = 640;
 enum HEIGHT = 480;
 
-enum PALLETTE_SPEED = 10; // px/s
-enum INIT_BALL_SPEED = 11;
-
+enum PALLETTE_SPEED = 70; // px/s
+enum INIT_BALL_SPEED = 55;
 
 enum FPS = 1.0 / 30.0;
+
+enum PAD_DISTFROMEDGE = 15; // distance, in pixels, that the palletes have from the edge
 
 struct Direction {
 	float x, y;
@@ -54,13 +55,13 @@ class Pong {
 		center.y = 0;
 		center.x = WIDTH / 2;
 
-		lpal.x = 5;
+		lpal.x = PAD_DISTFROMEDGE;
 		lpal.y = HEIGHT / 2;
 
-		rpal.x = WIDTH - 5;
+		rpal.x = WIDTH - PAD_DISTFROMEDGE - rpal.getrect().w;
 		rpal.y = HEIGHT / 2;
 
-		ball_dir = Direction(-1, 0);
+		ball_dir = Direction(uniform(0, 2) ? -1 : 1, 0); // -1/1: sometimes starts out moving right, sometimes left
 		ball.x = WIDTH / 2;
 	       	ball.y = HEIGHT / 2;
 
@@ -85,15 +86,15 @@ class Pong {
 
 
 			// bounce, if we hit the ceiling or the floor
-			if ((ball_potential.y <= 0) || (ball_potential.y >= HEIGHT)) {
+			if ((ball_potential.y <= 0) || ((ball_potential.y + ball_potential.getrect().h) >= HEIGHT)) {
 				ball_dir.y = -ball_dir.y;
 			// if we hit a paddle, reverse x direction but random y direction and increase speed
 			} else if ((ball_potential.getrect().collides(lpal.getrect())) || (ball_potential.getrect().collides(rpal.getrect()))) {
 				ball_dir.x = -ball_dir.x;
-				ball_dir.y = uniform(0.0, 1.0);
+				ball_dir.y = uniform(-1.0, 1.0);
 				ball_speed *= 1.1;
 			// we went off the edge of the screen
-			} else if ((ball_potential.x < 0) || (ball_potential.x > WIDTH)) {
+			} else if ((ball_potential.x < 0) || ((ball_potential.x + ball_potential.getrect().w) >= WIDTH)) {
 				if (ball_potential.x < 0) {
 					right_wins++;
 				} else if (ball_potential.x > WIDTH) {
@@ -101,7 +102,7 @@ class Pong {
 				}
 
 				initshit();
-				break;
+				continue;
 			} else {
 				ball = ball_potential;
 			}
