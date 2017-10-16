@@ -233,10 +233,11 @@ mainloop:	while (true) {
 		Graphics.clear(bg);
 
 		Graphics.placesprite(lpal, just(lpal_clr));
+		Graphics.placesprite(lscore, just(lpal_clr));
 		Graphics.placesprite(rpal, just(rpal_clr));
+		Graphics.placesprite(rscore, just(rpal_clr));
 		Graphics.placesprite(ball, just(ball_clr));
 		Graphics.placesprite(center, just(sep));
-		mmap!(Graphics.placesprite)(lscore, rscore);
 
 		Graphics.blit();
 	}
