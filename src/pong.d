@@ -50,12 +50,16 @@ Colour tweenclr(in Colour curr) {
 	with(curr) return Colour(cast(ubyte)(0.97*r), cast(ubyte)(0.97*g), cast(ubyte)(0.97*b));
 }
 
+Colour oppositeclr(in Colour curr) {
+	with (curr) return Colour(255-r, 255-g, 255-b);
+}
+
 
 class Pong {
 	uint ball_speed;
 	Sprite lpal, rpal, ball, center;
 	Sprite lscore, rscore;
-	Colour ball_clr, lpal_clr, rpal_clr, bg;
+	Colour ball_clr, lpal_clr, rpal_clr, bg, sep;
 
 	Direction ball_dir; // direction can be -1 for left/up, +1 for down/right, 0 for nothing.  But it's a float so the multiplier can be changed
 
@@ -106,6 +110,7 @@ class Pong {
 
 		mmap!((x) => *x = randclr())(&ball_clr, &lpal_clr, &rpal_clr);
 		bg = Colour(0, 0, 0);
+		sep = Colour(255, 255, 255);
 	}
 
 	void run() {
@@ -139,6 +144,7 @@ mainloop:	while (true) {
 				}
 
 				bg = ball_clr;
+				sep = oppositeclr(bg);
 
 				ball_dir.x = -ball_dir.x;
 				ball_dir.y = uniform(-1.0, 1.0);
@@ -219,7 +225,8 @@ mainloop:	while (true) {
 		Graphics.placesprite(lpal, just(lpal_clr));
 		Graphics.placesprite(rpal, just(rpal_clr));
 		Graphics.placesprite(ball, just(ball_clr));
-		mmap!(Graphics.placesprite)(center, lscore, rscore);
+		Graphics.placesprite(center, just(sep));
+		mmap!(Graphics.placesprite)(lscore, rscore);
 
 		Graphics.blit();
 	}
