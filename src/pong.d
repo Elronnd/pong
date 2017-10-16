@@ -9,6 +9,7 @@ import core.time: dur;
 import std.datetime: StopWatch;
 
 
+// because stdlib map is retarted
 template mmap(alias fun) {
 	void mmap(T...)(T list) {
 		foreach (item; list) {
@@ -25,8 +26,8 @@ enum quit_key = Key.q;
 enum WIDTH = 640;
 enum HEIGHT = 480;
 
-enum PALLETTE_SPEED = 100; // px/s
-enum INIT_BALL_SPEED = 75;
+enum PALLETTE_SPEED = 150; // px/s
+enum INIT_BALL_SPEED = 110;
 
 enum FPS = 1.0 / 60.0;
 
@@ -38,12 +39,18 @@ struct Direction {
 }
 
 
+Colour randclr() {
+	return Colour(uniform!ubyte(), uniform!ubyte(), uniform!ubyte());
+}
+
+
 class Pong {
 	uint ball_speed;
 	Sprite lpal, rpal, ball, center;
 	Sprite lscore, rscore;
+	Colour ball_clr, lpal_clr, rpal_clr;
 
-       	Direction ball_dir; // direction can be -1 for left/up, +1 for down/right, 0 for nothing.  But it's a float so the multiplier can be changed
+	Direction ball_dir; // direction can be -1 for left/up, +1 for down/right, 0 for nothing.  But it's a float so the multiplier can be changed
 
 	bool lpal_up, lpal_down; // is the button to move the left pallette up/down held right now?
 	bool rpal_up, rpal_down;
@@ -85,9 +92,12 @@ class Pong {
 
 		ball_dir = Direction(uniform(0, 2) ? -1 : 1, 0); // -1/1: sometimes starts out moving right, sometimes left
 		ball.x = WIDTH / 2;
-	       	ball.y = HEIGHT / 2;
+		ball.y = HEIGHT / 2;
 
 		ball_speed = INIT_BALL_SPEED;
+
+
+		mmap!((x) => *x = randclr())(&ball_clr, &lpal_clr, &rpal_clr);
 	}
 
 	void run() {
@@ -96,7 +106,7 @@ class Pong {
 		auto sw = StopWatch();
 		sw.start();
 
-	mainloop: while (true) {
+mainloop:	while (true) {
 			delta = sw.peek().msecs;
 			sw.reset();
 
@@ -112,10 +122,18 @@ class Pong {
 				ball_dir.y = -ball_dir.y;
 			// if we hit a paddle, reverse x direction but random y direction and increase speed
 			} else if ((ball_potential.getrect().collides(lpal.getrect())) || (ball_potential.getrect().collides(rpal.getrect()))) {
+				if (ball_potential.getrect().collides(lpal.getrect())) {
+					ball_clr = lpal_clr;
+					rpal_clr = randclr();
+				} else {
+					ball_clr = rpal_clr;
+					lpal_clr = randclr();
+				}
+
 				ball_dir.x = -ball_dir.x;
 				ball_dir.y = uniform(-1.0, 1.0);
 				ball_speed *= 1.1;
-			// we went off the edge of the screen
+				// we went off the edge of the screen
 			} else if ((ball_potential.x < 0) || ((ball_potential.x + ball_potential.getrect().w) >= WIDTH)) {
 				if (ball_potential.x < 0) {
 					right_wins++;
@@ -169,7 +187,7 @@ class Pong {
 					rpal.y += PALLETTE_SPEED * FPS;
 				}
 			}
-			
+
 
 			Thread.sleep(dur!"msecs"(cast(uint)((FPS * 1000) - delta)));
 
@@ -181,7 +199,10 @@ class Pong {
 	void draw() {
 		Graphics.clear();
 
-		mmap!(Graphics.placesprite)(lpal, rpal, ball, center, lscore, rscore);
+		Graphics.placesprite(lpal, just(lpal_clr));
+		Graphics.placesprite(rpal, just(rpal_clr));
+		Graphics.placesprite(ball, just(ball_clr));
+		mmap!(Graphics.placesprite)(center, lscore, rscore);
 
 		Graphics.blit();
 	}
