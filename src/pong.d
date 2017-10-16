@@ -7,6 +7,7 @@ import std.random: uniform;
 import core.thread: Thread;
 import core.time: dur;
 import std.datetime: StopWatch;
+import std.algorithm.iteration: map;
 
 
 // because stdlib map is retarted
@@ -43,12 +44,16 @@ Colour randclr() {
 	return Colour(uniform!ubyte(), uniform!ubyte(), uniform!ubyte());
 }
 
+Colour tweenclr(in Colour curr) {
+	with(curr) return Colour(cast(ubyte)(0.99*r), cast(ubyte)(0.99*g), cast(ubyte)(0.99*b));
+}
+
 
 class Pong {
 	uint ball_speed;
 	Sprite lpal, rpal, ball, center;
 	Sprite lscore, rscore;
-	Colour ball_clr, lpal_clr, rpal_clr;
+	Colour ball_clr, lpal_clr, rpal_clr, bg;
 
 	Direction ball_dir; // direction can be -1 for left/up, +1 for down/right, 0 for nothing.  But it's a float so the multiplier can be changed
 
@@ -98,6 +103,7 @@ class Pong {
 
 
 		mmap!((x) => *x = randclr())(&ball_clr, &lpal_clr, &rpal_clr);
+		bg = Colour(0, 0, 0);
 	}
 
 	void run() {
@@ -130,6 +136,8 @@ mainloop:	while (true) {
 					lpal_clr = randclr();
 				}
 
+				bg = ball_clr;
+
 				ball_dir.x = -ball_dir.x;
 				ball_dir.y = uniform(-1.0, 1.0);
 				ball_speed *= 1.1;
@@ -147,6 +155,8 @@ mainloop:	while (true) {
 			} else {
 				ball = ball_potential;
 			}
+
+			bg = tweenclr(bg);
 
 			Maybe!Event ev;
 
@@ -197,7 +207,7 @@ mainloop:	while (true) {
 
 
 	void draw() {
-		Graphics.clear();
+		Graphics.clear(bg);
 
 		Graphics.placesprite(lpal, just(lpal_clr));
 		Graphics.placesprite(rpal, just(rpal_clr));
