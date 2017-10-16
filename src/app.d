@@ -6,6 +6,7 @@ void main() {
 	GraphicsPrefs prefs;
 	prefs.winwidth = WIDTH;
 	prefs.winheight = HEIGHT;
+	prefs.borderless = false;
 	Graphics.init(prefs);
 
 

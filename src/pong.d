@@ -46,8 +46,13 @@ Colour randclr() {
 	return Colour(uniform!ubyte(), uniform!ubyte(), uniform!ubyte());
 }
 
-Colour tweenclr(in Colour curr) {
-	with(curr) return Colour(cast(ubyte)(0.97*r), cast(ubyte)(0.97*g), cast(ubyte)(0.97*b));
+Colour tweenclr(in Colour curr, in Colour target = Colour(0, 0, 0)) {
+	import std.math: abs;
+
+	with(curr) return Colour(cast(ubyte)(r + 0.05*(target.r-r)), cast(ubyte)(g + 0.05*(target.g-g)), cast(ubyte)(b + 0.05*(target.b-b)));
+}
+Colour darkenclr(in Colour curr, ubyte denom = 4) {
+	with (curr) return Colour(cast(ubyte)(r/denom), cast(ubyte)(g/denom), cast(ubyte)(b/denom));
 }
 
 Colour oppositeclr(in Colour curr) {
@@ -59,7 +64,7 @@ class Pong {
 	uint ball_speed;
 	Sprite lpal, rpal, ball, center;
 	Sprite lscore, rscore;
-	Colour ball_clr, lpal_clr, rpal_clr, bg, sep;
+	Colour ball_clr, lpal_clr, rpal_clr, bg, targetbg, sep;
 
 	Direction ball_dir; // direction can be -1 for left/up, +1 for down/right, 0 for nothing.  But it's a float so the multiplier can be changed
 
@@ -145,6 +150,7 @@ mainloop:	while (true) {
 
 				bg = ball_clr;
 				sep = oppositeclr(bg);
+				targetbg = darkenclr(sep);
 
 				ball_dir.x = -ball_dir.x;
 				ball_dir.y = uniform(-1.0, 1.0);
@@ -164,7 +170,11 @@ mainloop:	while (true) {
 				ball = ball_potential;
 			}
 
-			bg = tweenclr(bg);
+			if (bg != targetbg) {
+				bg = tweenclr(bg, targetbg);
+			} else {
+				//sep = oppositeclr(bg);
+			}
 
 			Maybe!Event ev;
 
@@ -208,7 +218,7 @@ mainloop:	while (true) {
 
 
 			draw();
-			
+
 			int sleep = cast(int)((FPS * 1000) - delta);
 			if (sleep < 0) {
 				writefln("Error, we have lag!  Trying to sleep for %s seconds!  (Our delta is %s)", sleep, delta);
