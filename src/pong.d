@@ -9,6 +9,8 @@ import core.time: dur;
 import std.datetime: StopWatch;
 import std.algorithm.iteration: map;
 
+import std.stdio: writefln;
+
 
 // because stdlib map is retarted
 template mmap(alias fun) {
@@ -27,10 +29,10 @@ enum quit_key = Key.q;
 enum WIDTH = 640;
 enum HEIGHT = 480;
 
-enum PALLETTE_SPEED = 150; // px/s
-enum INIT_BALL_SPEED = 110;
+enum PALLETTE_SPEED = 100; // px/s
+enum INIT_BALL_SPEED = 75;
 
-enum FPS = 1.0 / 60.0;
+enum FPS = 1.0 / 30.0;
 
 enum PAD_DISTFROMEDGE = 15; // distance, in pixels, that the palletes have from the edge
 enum TEXT_OFFSET = 5;
@@ -45,7 +47,7 @@ Colour randclr() {
 }
 
 Colour tweenclr(in Colour curr) {
-	with(curr) return Colour(cast(ubyte)(0.99*r), cast(ubyte)(0.99*g), cast(ubyte)(0.99*b));
+	with(curr) return Colour(cast(ubyte)(0.97*r), cast(ubyte)(0.97*g), cast(ubyte)(0.97*b));
 }
 
 
@@ -199,9 +201,14 @@ mainloop:	while (true) {
 			}
 
 
-			Thread.sleep(dur!"msecs"(cast(uint)((FPS * 1000) - delta)));
-
 			draw();
+			
+			int sleep = cast(int)((FPS * 1000) - delta);
+			if (sleep < 0) {
+				writefln("Error, we have lag!  Trying to sleep for %s seconds!  (Our delta is %s)", sleep, delta);
+			} else {
+				Thread.sleep(dur!"msecs"(sleep));
+			}
 		}
 	}
 
