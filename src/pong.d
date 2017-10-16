@@ -49,9 +49,9 @@ Colour randclr() {
 Colour tweenclr(in Colour curr, in Colour target = Colour(0, 0, 0)) {
 	import std.math: abs;
 
-	with(curr) return Colour(cast(ubyte)(r + 0.05*(target.r-r)), cast(ubyte)(g + 0.05*(target.g-g)), cast(ubyte)(b + 0.05*(target.b-b)));
+	with(curr) return Colour(cast(ubyte)(r + (target.r-r)/50), cast(ubyte)(g + (target.g-g)/50), cast(ubyte)(b + (target.b-b)/50));
 }
-Colour darkenclr(in Colour curr, ubyte denom = 4) {
+Colour darkenclr(in Colour curr, ubyte denom = 100) {
 	with (curr) return Colour(cast(ubyte)(r/denom), cast(ubyte)(g/denom), cast(ubyte)(b/denom));
 }
 
