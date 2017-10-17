@@ -141,6 +141,7 @@ class Pong {
 
 	void run() {
 		ulong delta;
+		ulong lag;
 
 		auto sw = StopWatch();
 		sw.start();
@@ -237,9 +238,15 @@ mainloop:	while (true) {
 
 			int sleep = cast(int)((FPS * 1000) - delta);
 			if (sleep < 0) {
-				writefln("Error, we have lag!  Trying to sleep for %s seconds!  (Our delta is %s)", sleep, delta);
+				lag += -sleep;
 			} else {
-				Thread.sleep(dur!"msecs"(sleep));
+				// if we have enough lag to make up for a frame
+				if (lag > (FPS * 1000)) {
+					// don't sleep
+					lag -= FPS * 1000;
+				} else {
+					Thread.sleep(dur!"msecs"(sleep));
+				}
 			}
 		}
 	}
