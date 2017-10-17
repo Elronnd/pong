@@ -85,6 +85,24 @@ class Pong {
 		initshit();
 	}
 
+	void doai() {
+		// get the center of the ball along the y
+		uint bally = (cast(uint)ball.y + ball.getrect().h) / 2;
+
+		// ditto for right pallette
+		uint pallettey = (cast(uint)rpal.y + rpal.getrect().h) / 2;
+
+		if (bally < pallettey) {
+			rpal_up = true;
+			rpal_down = false;
+		} else {
+			rpal_down = true;
+			rpal_up = false;
+		}
+	}
+
+
+
 	void update_scores() {
 		import std.conv: to;
 
@@ -106,14 +124,17 @@ class Pong {
 		rpal.x = WIDTH - PAD_DISTFROMEDGE - rpal.getrect().w;
 		rpal.y = HEIGHT / 2;
 
-		ball_dir = Direction(uniform(0, 2) ? -1 : 1, 0); // -1/1: sometimes starts out moving right, sometimes left
+		bool starting_going_right = uniform(0, 2) ? true : false;
+
+		ball_dir = Direction(starting_going_right ? 1 : -1, 0); // -1/1: sometimes starts out moving right, sometimes left
 		ball.x = WIDTH / 2;
 		ball.y = HEIGHT / 2;
 
 		ball_speed = INIT_BALL_SPEED;
 
 
-		mmap!((x) => *x = randclr())(&ball_clr, &lpal_clr, &rpal_clr);
+		mmap!((x) => *x = randclr())(&lpal_clr, &rpal_clr);
+		ball_clr = starting_going_right ? lpal_clr : rpal_clr;
 		bg = Colour(0, 0, 0);
 		sep = Colour(255, 255, 255);
 	}
@@ -185,17 +206,12 @@ mainloop:	while (true) {
 				} else if (ev.key == ldown_key) {
 					lpal_down = (ev.type == Evtype.Keydown) ? true :
 						(ev.type == Evtype.Keyup) ? false : lpal_down;
-				} else if (ev.key == rup_key) {
-					rpal_up = (ev.type == Evtype.Keydown) ? true :
-						(ev.type == Evtype.Keyup) ? false : rpal_up;
-				} else if (ev.key == rdown_key) {
-					rpal_down = (ev.type == Evtype.Keydown) ? true :
-						(ev.type == Evtype.Keyup) ? false : rpal_down;
 				} else if (ev.key == quit_key) {
 					break mainloop;
 				}
 			}
 
+			doai();
 			if (lpal_up) {
 				if ((lpal.y - (PALLETTE_SPEED * FPS)) >= 0) {
 					lpal.y -= PALLETTE_SPEED * FPS;
