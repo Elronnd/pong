@@ -22,7 +22,7 @@ template mmap(alias fun) {
 }
 
 
-enum lup_key = Key.a, ldown_key = Key.z, rup_key = Key.up, rdown_key = Key.down;
+enum up_key = Key.up, down_key = Key.down;
 enum quit_key = Key.q;
 
 
@@ -200,10 +200,10 @@ mainloop:	while (true) {
 			Maybe!Event ev;
 
 			while ((ev = Graphics.pollevent()).isset) {
-				if (ev.key == lup_key) {
+				if (ev.key == up_key) {
 					lpal_up = (ev.type == Evtype.Keydown) ? true :
 						(ev.type == Evtype.Keyup) ? false : lpal_up;
-				} else if (ev.key == ldown_key) {
+				} else if (ev.key == down_key) {
 					lpal_down = (ev.type == Evtype.Keydown) ? true :
 						(ev.type == Evtype.Keyup) ? false : lpal_down;
 				} else if (ev.key == quit_key) {
