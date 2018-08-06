@@ -11,6 +11,12 @@ import std.algorithm.iteration: map;
 
 import std.stdio: writefln;
 
+enum Sfx {
+	bounce,
+	win,
+	lose,
+}
+
 
 // because stdlib map is retarted
 template mmap(alias fun) {
@@ -78,6 +84,9 @@ class Pong {
 		ball.load("assets/ball.png");
 		lpal.load("assets/pallette.png");
 		rpal.load("assets/pallette.png");
+		Graphics.regsfx("blip.wav", Sfx.bounce);
+		Graphics.regsfx("winup.wav", Sfx.win);
+		Graphics.regsfx("windown.wav", Sfx.lose);
 		Graphics.loadfont("assets/DejaVuSans.ttf", 1, 24);
 
 		update_scores();
@@ -162,6 +171,7 @@ mainloop:	while (true) {
 				ball_dir.y = -ball_dir.y;
 			// if we hit a paddle, reverse x direction but random y direction and increase speed
 			} else if ((ball_potential.getrect().collides(lpal.getrect())) || (ball_potential.getrect().collides(rpal.getrect()))) {
+				Graphics.playsfx(Sfx.bounce);
 				if (ball_potential.getrect().collides(lpal.getrect())) {
 					ball_clr = lpal_clr;
 					rpal_clr = randclr();
@@ -177,12 +187,14 @@ mainloop:	while (true) {
 				ball_dir.x = -ball_dir.x;
 				ball_dir.y = uniform(-1.0, 1.0);
 				ball_speed = (ball_speed*11)/10;
-				// we went off the edge of the screen
+			// we went off the edge of the screen
 			} else if ((ball_potential.x < 0) || ((ball_potential.x + ball_potential.getrect().w) >= WIDTH)) {
 				if (ball_potential.x < 0) {
 					right_wins++;
+					Graphics.playsfx(Sfx.lose);
 				} else if ((ball_potential.x + ball_potential.getrect.w) >= WIDTH) {
 					left_wins++;
+					Graphics.playsfx(Sfx.win);
 				}
 				update_scores();
 
