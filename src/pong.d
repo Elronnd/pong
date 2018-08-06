@@ -6,7 +6,7 @@ import maybe;
 import std.random: uniform;
 import core.thread: Thread;
 import core.time: dur;
-import std.datetime: StopWatch;
+import std.datetime.stopwatch: StopWatch;
 import std.algorithm.iteration: map;
 
 import std.stdio: writefln;
@@ -29,10 +29,10 @@ enum quit_key = Key.q;
 enum WIDTH = 640;
 enum HEIGHT = 480;
 
-enum PALLETTE_SPEED = 100; // px/s
-enum INIT_BALL_SPEED = 75;
+enum PALLETTE_SPEED = 200; // px/s
+enum INIT_BALL_SPEED = 150;
 
-enum FPS = 1.0 / 30.0;
+enum FPS = 1.0 / 60.0;
 
 enum PAD_DISTFROMEDGE = 15; // distance, in pixels, that the palletes have from the edge
 enum TEXT_OFFSET = 5;
@@ -147,7 +147,7 @@ class Pong {
 		sw.start();
 
 mainloop:	while (true) {
-			delta = sw.peek().msecs;
+			delta = sw.peek().total!"msecs";
 			sw.reset();
 
 
@@ -176,7 +176,7 @@ mainloop:	while (true) {
 
 				ball_dir.x = -ball_dir.x;
 				ball_dir.y = uniform(-1.0, 1.0);
-				ball_speed *= 1.1;
+				ball_speed = (ball_speed*11)/10;
 				// we went off the edge of the screen
 			} else if ((ball_potential.x < 0) || ((ball_potential.x + ball_potential.getrect().w) >= WIDTH)) {
 				if (ball_potential.x < 0) {
@@ -244,6 +244,8 @@ mainloop:	while (true) {
 				if (lag > (FPS * 1000)) {
 					// don't sleep
 					lag -= FPS * 1000;
+					import std.stdio;
+					writeln("LAG!");
 				} else {
 					Thread.sleep(dur!"msecs"(sleep));
 				}

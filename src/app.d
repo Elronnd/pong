@@ -7,6 +7,7 @@ void main() {
 	prefs.winwidth = WIDTH;
 	prefs.winheight = HEIGHT;
 	prefs.borderless = false;
+	prefs.use_vsync = true;
 	Graphics.init(prefs);
 
 
