@@ -35,8 +35,8 @@ enum quit_key = Key.q;
 enum WIDTH = 640;
 enum HEIGHT = 480;
 
-enum PALLETTE_SPEED = 200; // px/s
-enum INIT_BALL_SPEED = 150;
+enum INIT_PALLETTE_SPEED = 200; // px/s
+enum INIT_BALL_SPEED = 200;
 
 enum FPS = 1.0 / 60.0;
 
@@ -67,7 +67,7 @@ Colour oppositeclr(in Colour curr) {
 
 
 class Pong {
-	uint ball_speed;
+	uint ball_speed, lpal_speed, rpal_speed;
 	Sprite lpal, rpal, ball, center;
 	Sprite lscore, rscore;
 	Colour ball_clr, lpal_clr, rpal_clr, bg, targetbg, sep;
@@ -140,6 +140,7 @@ class Pong {
 		ball.y = HEIGHT / 2;
 
 		ball_speed = INIT_BALL_SPEED;
+		rpal_speed = lpal_speed = INIT_PALLETTE_SPEED;
 
 
 		mmap!((x) => *x = randclr())(&lpal_clr, &rpal_clr);
@@ -173,9 +174,11 @@ mainloop:	while (true) {
 			} else if ((ball_potential.getrect().collides(lpal.getrect())) || (ball_potential.getrect().collides(rpal.getrect()))) {
 				Graphics.playsfx(Sfx.bounce);
 				if (ball_potential.getrect().collides(lpal.getrect())) {
+					lpal_speed = (lpal_speed*125)/100;
 					ball_clr = lpal_clr;
 					rpal_clr = randclr();
 				} else {
+					rpal_speed = (rpal_speed*125)/100;
 					ball_clr = rpal_clr;
 					lpal_clr = randclr();
 				}
@@ -226,22 +229,22 @@ mainloop:	while (true) {
 
 			doai();
 			if (lpal_up) {
-				if ((lpal.y - (PALLETTE_SPEED * FPS)) >= 0) {
-					lpal.y -= PALLETTE_SPEED * FPS;
+				if ((lpal.y - (lpal_speed * FPS)) >= 0) {
+					lpal.y -= lpal_speed * FPS;
 				}
 			} else if (lpal_down) {
-				if ((lpal.y + lpal.getrect().h + (PALLETTE_SPEED * FPS)) <= HEIGHT) {
-					lpal.y += PALLETTE_SPEED * FPS;
+				if ((lpal.y + lpal.getrect().h + (lpal_speed * FPS)) <= HEIGHT) {
+					lpal.y += lpal_speed * FPS;
 				}
 			}
 
 			if (rpal_up) {
-				if ((rpal.y - (PALLETTE_SPEED * FPS)) >= 0) {
-					rpal.y -= PALLETTE_SPEED * FPS;
+				if ((rpal.y - (rpal_speed * FPS)) >= 0) {
+					rpal.y -= rpal_speed * FPS;
 				}
 			} else if (rpal_down) {
-				if ((rpal.y + rpal.getrect().h + (PALLETTE_SPEED * FPS)) <= HEIGHT) {
-					rpal.y += PALLETTE_SPEED * FPS;
+				if ((rpal.y + rpal.getrect().h + (rpal_speed * FPS)) <= HEIGHT) {
+					rpal.y += rpal_speed * FPS;
 				}
 			}
 
